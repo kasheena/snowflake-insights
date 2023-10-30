@@ -17,6 +17,7 @@ def main():
         date_from, date_to = gui.date_selector()
 
     # Header
+    gui.icon("🔹")
     st.title("Compute insights")
 
     # ----------------------
@@ -150,6 +151,24 @@ def main():
         date_to,
         value_column="CREDITS_USED_COMPUTE",
     )
+
+    gui.subsubheader("Time-histogram of **warehouse usage**")
+
+    plost.time_hist(
+        data=warehouse_usage_hourly_filtered,
+        date="START_TIME",
+        x_unit="day",
+        y_unit="hours",
+        color={
+            "field": "CREDITS_USED_COMPUTE",
+            "scale": {
+                "scheme": charts.ALTAIR_SCHEME,
+            },
+        },
+        aggregate=None,
+        legend=None,
+    )
+
     gui.space(1)
     gui.hbar()
 
@@ -201,6 +220,31 @@ def main():
                 st.caption(f"{query.Index} {query.DURATION_SECS_PP}")
                 st.code(query.QUERY_TEXT_PP, "sql")
 
+    gui.space(1)
+    st.write("Time-histograms of **aggregate queries duration** (in secs)")
+
+    # Resample so that all the period has data (fill with 0 if needed)
+    queries_data = processing.resample_date_period(
+        queries_data, date_from, date_to, "DURATION_SECS"
+    )
+
+    num_days_selected = (date_to - date_from).days
+    if num_days_selected > 14:
+        st.caption("Week-day histogram")
+        plost.time_hist(
+            data=queries_data,
+            date="START_TIME",
+            x_unit="week",
+            y_unit="day",
+            color={
+                "field": "DURATION_SECS",
+                "scale": {"scheme": charts.ALTAIR_SCHEME},
+            },
+            aggregate="sum",
+            legend=None,
+        )
+
+    gui.space(1)
     gui.subsubheader(
         "**Query optimization**: longest and most frequent queries",
         "Log scales (🖱️ hover for real values!)",
