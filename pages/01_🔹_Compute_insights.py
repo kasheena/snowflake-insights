@@ -215,7 +215,7 @@ def main():
 
     # Only show if at least three queries!
     if len(queries_podium_df) >= 3:
-        with st.expander("🔎 Zoom into top-3 longest queries in detail"):
+        with st.expander("🔎 top-3 longest queries in detail"):
             for query in queries_podium_df.itertuples():
                 st.caption(f"{query.Index} {query.DURATION_SECS_PP}")
                 st.code(query.QUERY_TEXT_PP, "sql")
@@ -246,8 +246,7 @@ def main():
 
     gui.space(1)
     gui.subsubheader(
-        "**Query optimization**: longest and most frequent queries",
-        "Log scales (🖱️ hover for real values!)",
+        "**Query optimization**: longest and most frequent queries"
     )
 
     queries_agg = sf.sql_to_dataframe(
